@@ -1,29 +1,45 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react'; // Importamos React y el hook useState para manejar los estados.
+import axios from 'axios'; // Importamos axios para realizar las peticiones HTTP.
 
-const ClienteForm = ({ onClienteAdded }) => {
-  const [nombre, setNombre] = useState('');
-  const [correo, setCorreo] = useState('');
+const ClienteForm = ({ onClienteAdded }) => { // Declaramos el componente ClienteForm, que recibe la prop onClienteAdded.
+  const [nombre, setNombre] = useState(''); // Creamos el estado 'nombre' con valor inicial vacío.
+  const [correo, setCorreo] = useState(''); // Creamos el estado 'correo' con valor inicial vacío.
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => { // Definimos la función handleSubmit que se ejecutará al enviar el formulario.
+    e.preventDefault(); // Prevenimos el comportamiento por defecto del formulario (recargar la página).
     try {
-      const response = await axios.post('https://demo-backend-pwj9.onrender.com/clientes', { nombre, correo });
-      onClienteAdded(response.data);
-      setNombre('');
-      setCorreo('');
-    } catch (error) {
-      console.error('Error al agregar cliente', error);
+      // Asegúrate de que esta URL coincida con la del backend
+      const response = await axios.post('http://localhost:3000/clientes', { // Realizamos una petición POST al servidor con los datos.
+        nombre, // Enviamos el valor de 'nombre'.
+        correo, // Enviamos el valor de 'correo'.
+      });
+      onClienteAdded(response.data); // Llamamos a la función onClienteAdded con los datos del cliente agregado desde la respuesta del servidor.
+      setNombre(''); // Limpiamos el campo de 'nombre' después de enviar el formulario.
+      setCorreo(''); // Limpiamos el campo de 'correo' después de enviar el formulario.
+    } catch (error) { // En caso de que haya un error en la petición.
+      console.error('Error al agregar cliente:', error.response?.data || error.message); // Imprimimos el error en la consola.
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-      <input type="email" placeholder="Correo" value={correo} onChange={(e) => setCorreo(e.target.value)} required />
-      <button type="submit">Agregar Cliente</button>
+    <form onSubmit={handleSubmit}> {/* El formulario ejecuta handleSubmit cuando se envía. */}
+      <input
+        type="text" // Especificamos que este campo es para ingresar texto (nombre).
+        placeholder="Nombre" // El texto que aparecerá dentro del campo cuando esté vacío.
+        value={nombre} // El valor del input será el estado 'nombre'.
+        onChange={(e) => setNombre(e.target.value)} // Cuando el valor cambia, actualizamos el estado 'nombre'.
+        required // Hacemos el campo obligatorio.
+      />
+      <input
+        type="email" // Especificamos que este campo es para ingresar un correo electrónico.
+        placeholder="Correo" // El texto que aparecerá dentro del campo cuando esté vacío.
+        value={correo} // El valor del input será el estado 'correo'.
+        onChange={(e) => setCorreo(e.target.value)} // Cuando el valor cambia, actualizamos el estado 'correo'.
+        required // Hacemos el campo obligatorio.
+      />
+      <button type="submit">Agregar Cliente</button> {/* El botón que envía el formulario. */}
     </form>
   );
 };
 
-export default ClienteForm;
+export default ClienteForm; // Exportamos el componente ClienteForm para usarlo en otros archivos.
