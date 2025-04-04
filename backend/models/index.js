@@ -5,17 +5,24 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
+// Configurar la conexión a la base de datos usando variables de entorno
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'ejcodefirst',    // Nombre de la base de datos
+  process.env.DB_USER || 'postgres',       // Usuario de la base de datos
+  process.env.DB_PASSWORD || '123456789',  // Contraseña de la base de datos
+  {
+    host: process.env.DB_HOST || '127.0.0.1',  // Dirección del host (puedes usar 'localhost' o la IP)
+    dialect: 'postgres',                      // Dialecto de la base de datos (PostgreSQL)
+    logging: false,                           // Desactiva el logging de SQL en consola (opcional)
+    dialectOptions: {
+      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
+    },
+  }
+);
 
+// Leer los archivos de modelos y cargarlos
 fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -31,6 +38,7 @@ fs
     db[model.name] = model;
   });
 
+// Asociar los modelos (si es necesario)
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
